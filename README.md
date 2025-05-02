@@ -25,7 +25,7 @@ So to construct the Cross-Asset OFI Feature
   - Bid/ask sizes
 - The resulting dataset mimics the structure of **Nasdaq-100** data used in the paper
 
-## Output:
+# Output:
 There are two output CSVs:
 1. output/ofi_features_base.csv
 This file includes per-symbol feature columns for:
@@ -38,6 +38,37 @@ Each row corresponds to one event in the dataset.
 This file includes the same fields as above plus:
 cross_asset_ofi 
 This is executed on the simulated dataset as described above
+
+## Sample Output
+Data shape: (5000, 74)
+Symbols in dataset: ['AAPL']
+
+Computing OFI features for symbol: AAPL
+
+Base OFI Features (Best, Multi-Level, Integrated)
+                             ts_event symbol  best_level_ofi  ofi_level_0  ...  integrated_ofi
+0 2024-10-21 11:54:29.221064336+00:00   AAPL             0.0          0.0  ...        0.000000
+1 2024-10-21 11:54:29.223769812+00:00   AAPL             2.0          2.0  ...        0.035961
+2 2024-10-21 11:54:29.225030400+00:00   AAPL             3.0          3.0  ...        0.053942
+...
+9 2024-10-21 11:54:39.134140341+00:00   AAPL          -200.0       -200.0  ...      -90.233686
+
+[10 rows x 14 columns]
+
+Simulating a multi-asset dataset...
+
+Computing Cross-Asset OFI for the simulated dataset...
+Running OFI pipeline for AAPL
+Running OFI pipeline for GOOG
+Running OFI pipeline for MSFT
+
+Cross-Asset OFI Output
+                             ts_event symbol  best_level_ofi  integrated_ofi  cross_asset_ofi
+0 2024-10-21 11:54:29.221064336+00:00   AAPL             0.0        0.000000         0.000000
+1 2024-10-21 11:54:29.223769812+00:00   AAPL             2.0        0.035961        30.826914
+2 2024-10-21 11:54:29.225030400+00:00   AAPL             3.0        0.053942      -174.127164
+...
+9 2024-10-21 11:54:39.134140341+00:00   AAPL          -200.0      -90.233686      -207.162676
 
 
 Author: Shanaya Anna Varkey
