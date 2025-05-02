@@ -39,39 +39,6 @@ This file includes the same fields as above plus:
 cross_asset_ofi 
 This is executed on the simulated dataset as described above
 
-## Sample Output
-Data shape: (5000, 74)
-Symbols in dataset: ['AAPL']
-
-Computing OFI features for symbol: AAPL
-
-Base OFI Features (Best, Multi-Level, Integrated)
-ts_event                          symbol  best_level_ofi  ofi_level_0  ...  integrated_ofi
-2024-10-21 11:54:29.221064336+00:00 AAPL             0.0          0.0       0.000000
-2024-10-21 11:54:29.223769812+00:00 AAPL             2.0          2.0       0.035961
-2024-10-21 11:54:29.225030400+00:00 AAPL             3.0          3.0       0.053942
-2024-10-21 11:54:29.712434212+00:00 AAPL             0.0          0.0      21.060680
-2024-10-21 11:54:29.764673165+00:00 AAPL             0.0          0.0     -21.060680
-...
-
-
-[10 rows x 14 columns]
-
-Simulating a multi-asset dataset...
-
-Computing Cross-Asset OFI for the simulated dataset...
-Running OFI pipeline for AAPL
-Running OFI pipeline for GOOG
-Running OFI pipeline for MSFT
-
-Cross-Asset OFI Output
-ts_event                          symbol  best_level_ofi  integrated_ofi  cross_asset_ofi
-2024-10-21 11:54:29.221064336+00:00 AAPL             0.0         0.000000         0.000000
-2024-10-21 11:54:29.223769812+00:00 AAPL             2.0         0.035961        30.826914
-2024-10-21 11:54:29.225030400+00:00 AAPL             3.0         0.053942      -174.127164
-2024-10-21 11:54:29.712434212+00:00 AAPL             0.0        21.060680       102.847409
-2024-10-21 11:54:29.764673165+00:00 AAPL             0.0       -21.060680      -176.684852
-...
 
 
 Author: Shanaya Anna Varkey
