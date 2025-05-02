@@ -7,6 +7,37 @@ This repo contains a Python script to compute the following Order Flow Imbalance
 - Integrated OFI (via PCA)
 - Cross-Asset OFI
 
-Note: Dataset contains 10 levels of bid/ask prices and sizes per timestamp.
+## Note 1
+Dataset contains 10 levels of bid/ask prices and sizes per timestamp.
+
+
+## Note 2: Note on Dataset Discrepancy:
+The dataset provided for this task was titled `first_25000_rows.csv`.
+
+However, upon inspection:
+- The actual **data shape is**: `(5000, 74)`
+- It contains **only one symbol**: `AAPL`
+  
+So to construct the Cross-Asset OFI Feature
+- We simulated **two additional symbols** — `MSFT` and `GOOG`
+- These were derived from the existing `AAPL` data by applying **slight, randomized noise** to:
+  - Bid/ask prices
+  - Bid/ask sizes
+- The resulting dataset mimics the structure of **Nasdaq-100** data used in the paper
+
+## Output:
+There are two output CSVs:
+1. output/ofi_features_base.csv
+This file includes per-symbol feature columns for:
+best_level_ofi 
+ofi_level_0 to ofi_level_9 
+integrated_ofi 
+Each row corresponds to one event in the dataset.
+
+2. output/ofi_features_with_cross_asset.csv
+This file includes the same fields as above plus:
+cross_asset_ofi 
+This is executed on the simulated dataset as described above
+
 
 Author: Shanaya Anna Varkey

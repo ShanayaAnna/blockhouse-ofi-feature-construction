@@ -181,41 +181,39 @@ if __name__ == "__main__":
     df = preprocess("data/first_25000_rows.csv")
     print("Data shape:", df.shape)
     print("Symbols in dataset:", df["symbol"].unique())
-    
-    best_level_results = []
-    multi_level_results = []
-    integrated_results = []
 
-    # Group by symbol so we can handle each stock independently
+    # Step 1–3: Best-Level, Multi-Level, Integrated OFI
+    combined_results = []
+
     for symbol, symbol_df in df.groupby("symbol"):
-        # 1. Best Level OFI
-        print(f"Computing Best-Level OFI for symbol: {symbol}")
-        symbol_best_level_ofi = compute_best_level_ofi(symbol_df)
-        print(symbol_best_level_ofi.head(10))
-        best_level_results.append(symbol_best_level_ofi)
+        print(f"\nComputing OFI features for symbol: {symbol}")
 
-        # 2. Multi Level OFI (Deeper-level OFI)
-        print(f"Computing Multi-Level OFI for symbol: {symbol}")
-        symbol_multi_level_ofi = compute_multi_level_ofi(symbol_df)
-        print(symbol_multi_level_ofi.iloc[:10, -10:])
-        multi_level_results.append(symbol_multi_level_ofi)
+        # Step 1: Best-Level
+        best_df = compute_best_level_ofi(symbol_df)
+        
+        # Step 2: Multi-Level
+        multi_df = compute_multi_level_ofi(best_df)
+        
+        # Step 3: Integrated OFI
+        integrated_df = compute_integrated_ofi(multi_df)
 
-        # 3. Integrated OFI 
-        print(f"Computing Integrated OFI for symbol: {symbol}")
-        symbol_integrated_ofi = compute_integrated_ofi(symbol_multi_level_ofi)
-        print(symbol_integrated_ofi[["ts_event", "integrated_ofi"]].head(10))
-        integrated_results.append(symbol_integrated_ofi)
+        combined_results.append(integrated_df)
 
-    #4. Cross-Asset OFI
+    final_ofi_df = pd.concat(combined_results, ignore_index=True)
+
+    print("\n Base OFI Features (Best, Multi-Level, Integrated)")
+    print(final_ofi_df[["ts_event", "symbol", "best_level_ofi", "ofi_level_0", "ofi_level_1", "ofi_level_2", "ofi_level_3", "ofi_level_4", "ofi_level_5", "ofi_level_6", "ofi_level_7", "ofi_level_8", "ofi_level_9", "integrated_ofi"]].head(10))
+    final_ofi_df.to_csv("output/ofi_features_base.csv", index=False)
+
+    # Step 4: Cross-Asset OFI with simulated data
     print("\nSimulating a multi-asset dataset...")
     df_multi_asset = simulate_other_symbols(df, symbol_variants=["MSFT", "GOOG"])
-    print("\nComputing Cross-Asset OFI for the simulated Data set")
-    final_df = compute_cross_asset_ofi(df_multi_asset)
-    print(final_df[["ts_event", "symbol", "best_level_ofi", "integrated_ofi", "cross_asset_ofi"]].head(15))
 
-    df_with_best_level_ofi = pd.concat(best_level_results, ignore_index=True)
-    df_with_multi_level_ofi = pd.concat(multi_level_results, ignore_index=True)
-    df_with_integrated_ofi = pd.concat(integrated_results, ignore_index=True)
+    print("\nComputing Cross-Asset OFI for the simulated dataset...")
+    final_cross_asset_df = compute_cross_asset_ofi(df_multi_asset)
 
-
+    # ✅ Print preview and save cross-asset output
+    print("\n✅ Cross-Asset OFI Output")
+    print(final_cross_asset_df[["ts_event", "symbol", "best_level_ofi", "integrated_ofi", "cross_asset_ofi"]].head(10))
+    final_cross_asset_df.to_csv("output/ofi_features_with_cross_asset.csv", index=False)
 
