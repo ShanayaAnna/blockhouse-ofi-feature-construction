@@ -1,4 +1,6 @@
 import pandas as pd
+from sklearn.decomposition import PCA
+import numpy as np
 
 def preprocess(filepath: str) -> pd.DataFrame:
     """
@@ -95,13 +97,37 @@ def compute_multi_level_ofi(grouped_df: pd.DataFrame, levels: int = 10) -> pd.Da
 
     return df
 
+def compute_integrated_ofi(multi_level_df: pd.DataFrame, levels: int = 10) -> pd.DataFrame:
+    """
+    Computes the Integrated OFI using the first principal component of multi-level OFIs.
+    Equation (4)
+    """
+    df = multi_level_df.copy()
+
+    # Extracting the level-wise OFI columns
+    ofi_matrix = df[[f"ofi_level_{i}" for i in range(levels)]].fillna(0).values
+
+    # Fit PCA on the entire OFI matrix 
+    pca = PCA(n_components=1)
+    first_pc_scores = pca.fit_transform(ofi_matrix)  
+    first_pc_weights = pca.components_[0]           
+
+    # Normalize the weights
+    l1_norm = np.sum(np.abs(first_pc_weights))
+    normalized_weights = first_pc_weights / l1_norm
+
+    df["integrated_ofi"] = ofi_matrix.dot(normalized_weights)
+
+    return df
+
 if __name__ == "__main__":
     df = preprocess("data/first_25000_rows.csv")
     print("Data shape:", df.shape)
     print("Symbols in dataset:", df["symbol"].unique())
     
-    results = []
+    best_level_results = []
     multi_level_results = []
+    integrated_results = []
 
     # Group by symbol so we can handle each stock independently
     for symbol, symbol_df in df.groupby("symbol"):
@@ -109,7 +135,7 @@ if __name__ == "__main__":
         print(f"Computing Best-Level OFI for symbol: {symbol}")
         symbol_best_level_ofi = compute_best_level_ofi(symbol_df)
         print(symbol_best_level_ofi.head(10))
-        results.append(symbol_best_level_ofi)
+        best_level_results.append(symbol_best_level_ofi)
 
         # 2. Multi Level OFI (Deeper-level OFI)
         print(f"Computing Multi-Level OFI for symbol: {symbol}")
@@ -117,8 +143,15 @@ if __name__ == "__main__":
         print(symbol_multi_level_ofi.iloc[:10, -10:])
         multi_level_results.append(symbol_multi_level_ofi)
 
-    df_with_best_level_ofi = pd.concat(results, ignore_index=True)
+        # 3. Integrated OFI 
+        print(f"Computing Integrated OFI for symbol: {symbol}")
+        symbol_integrated_ofi = compute_integrated_ofi(symbol_multi_level_ofi)
+        print(symbol_integrated_ofi[["ts_event", "integrated_ofi"]].head(10))
+        integrated_results.append(symbol_integrated_ofi)
+
+    df_with_best_level_ofi = pd.concat(best_level_results, ignore_index=True)
     df_with_multi_level_ofi = pd.concat(multi_level_results, ignore_index=True)
+    df_with_integrated_ofi = pd.concat(integrated_results, ignore_index=True)
 
 
 
